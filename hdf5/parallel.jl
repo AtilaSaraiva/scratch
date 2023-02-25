@@ -8,7 +8,7 @@ end
 close(f)
 
 fr = h5open("pdata.h5", "r")
-for k in keys(fr)
+@threads for k in keys(fr)
     println("$k: ", read(fr[k]))
 end
 
