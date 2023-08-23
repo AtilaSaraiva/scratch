@@ -2,8 +2,7 @@ using WGLMakie
 
 # Uncomment the blocks of code to have them executed
 
-#####  Customizable figure  #####
-
+#####  Customizable figure  #####{{{
 # f = Figure(backgroundcolor = RGBf(0.98, 0.98, 0.98), resolution = (600, 400))
 # ax = Axis(f[1,1],
           # title = "A Makie axis",
@@ -14,9 +13,10 @@ using WGLMakie
 # y = sin.(x)
 # scatter!(x,y)
 # display(f)
+#}}}
 
 
-#####  Writing in one line  #####
+#####  Writing in one line  #####{{{
 # x = range(0,10, length=100)
 # y = sin.(x)
 # figure, axis, lineplot = lines(x,y;
@@ -26,9 +26,10 @@ using WGLMakie
                               # )
 
 # display(figure)
+# }}}
 
 
-#####  Other ways to plot functions  #####
+#####  Other ways to plot functions  #####{{{
 # x = range(0, 10, length=100)
 
 # f, ax, lp = lines(0..10, cos, color = RGBf(0.2, 0.7, 0.2))
@@ -41,9 +42,10 @@ using WGLMakie
 # sc1.strokewidth = 2
 # sc1.strokecolor = :purple
 # display(f)
+# }}}
 
 
-#####  Array attributes and legend #####
+#####  Array attributes and legend #####{{{
 # x = range(0,10, length=100)
 # f, ax, sc1 = scatter(x, sin,
                 # markersize = range(5, 15, length=100),
@@ -68,9 +70,10 @@ using WGLMakie
 # lines!(x, θ->3*sin(2θ), color = colors)
 # axislegend()
 # display(f)
+# }}}
 
 
-#####  Subplots with implicit axis #####
+#####  Subplots with implicit axis #####{{{
 
 # x = LinRange(0, 10, 100)
 # y = sin.(x)
@@ -81,9 +84,10 @@ using WGLMakie
 # lines(fig[2,1:2], x, y, color = :green)
 
 # display(fig)
+# }}}
 
 
-#####  Heatmaps, Colorbars and Legends  #####
+#####  Heatmaps, Colorbars and Legends  #####{{{
 # fig = Figure()
 
 # ax1 = Axis(fig[1,1])
@@ -99,3 +103,4 @@ using WGLMakie
 # Colorbar(fig[2,3], h1)
 
 # display(fig)
+# }}}
