@@ -32,15 +32,26 @@ function grad(x, dx, t, dt, y, dy)
     return
 end
 
-function ∂2(x, dx, dx2, t, dt, y, dy)
+function ∂xx(x, dx, dx2, t, dt, y, dy)
     Dp = Duplicated
     vx = ones_like(dx2)
-    vt = zeros_like(dx2)
     dy .= 1
     dx2 .= 0
     autodiff_deferred(Reverse, grad,
              Dp(x, dx2), Dp(dx, vx),
              Dp(t, zeros_like(t)), Dp(dt, zeros_like(dt)),
+             Dp(y, zeros_like(y)), Dp(dy, zeros_like(dy)))
+    return
+end
+
+function ∂tt(x, dx, t, dt, dt2, y, dy)
+    Dp = Duplicated
+    vt = ones_like(dt2)
+    dy .= 1
+    dt2 .= 0
+    autodiff_deferred(Reverse, grad,
+             Dp(x, zeros_like(x)), Dp(dx, zeros_like(dx)),
+             Dp(t, dt2), Dp(dt, vt),
              Dp(y, zeros_like(y)), Dp(dy, zeros_like(dy)))
     return
 end
@@ -60,12 +71,51 @@ function main()
     @show dt .- ∂gt
 
     dx2 = zero(x)
-    ∂2(x, dx, dx2, t, dt, y, dy)
+    dt2 = zero(t)
+    ∂xx(x, dx, dx2, t, dt, y, dy)
+    ∂tt(x, dx, t, dt, dt2, y, dy)
     ∂gxx, ∂gtt = dg2Analytical(x, t)
 
     @show dx2 .- ∂gxx
+    @show dt2 .- ∂gtt
 
     return
 end
 
 main()
+
+
+# dgdx = zero(x)
+# dgdt = zero(t)
+# y = zero(x)
+# dy = zero(x) .+ 1
+# vx = zero(x) .+ 1
+# vt = zero(t) .+ 1
+
+
+# function dg_dx(x, dgdx, t, y, dy)
+    # dy .= 1
+    # autodiff_deferred(Reverse, g, Duplicated(x, dgdx), Const(t), Duplicated(y, dy))
+    # return nothing
+# end
+# function dg_dt(x, t, dgdt, y, dy)
+    # dy .= 1
+    # autodiff_deferred(Reverse, g, Const(x), Duplicated(t, dgdt), Duplicated(y, dy))
+    # return nothing
+# end
+# function dg_dx2(x, dgdx, dgdx2, vx, t, y, dy)
+    # dy .= 1
+    # vx .= 1
+    # autodiff_deferred(Reverse, dg_dx, Duplicated(x, dgdx2), Duplicated(dgdx, vx),
+                      # Const(t), Const(y), Const(dy))
+    # return nothing
+# end
+
+# dgdx2 = zero(x)
+# dgdt2 = zero(t)
+# # dg_dx(x, dgdx, t, y, dy)
+# # dg_dt(x, t, dgdt, y, dy)
+# dg_dx2(x, dgdx, dgdx2, vx, t, y, dy)
+# # @show all(dgAnalytical(x, t)[1] .== dgdx)
+# # @show all(dgAnalytical(x, t)[2] .== dgdt)
+# @show all(dg2Analytical(x, t)[1] .== dgdx2)
