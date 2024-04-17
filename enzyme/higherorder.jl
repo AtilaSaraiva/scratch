@@ -1,0 +1,71 @@
+using Enzyme
+
+function g(x, t, y)
+    @. y = x^3 + t^2 + x*t
+    return
+end
+function dgAnalytical(x, t)
+    dgdx = zero(x)
+    dgdt = zero(t)
+    dgdx .= 3 .* x .^ 2 .+ t
+    dgdt .= 2 .* t .+ x
+    return dgdx, dgdt
+end
+function dg2Analytical(x, t)
+    dgdx2 = zero(x)
+    dgdt2 = zero(t)
+    dgdx2 .= 6 .* x
+    dgdt2 .= 2
+    return dgdx2, dgdt2
+end
+
+function ones_like(inp)
+    return make_zero(inp) .+ 1
+end
+function zeros_like(inp)
+    return make_zero(inp)
+end
+
+function grad(x, dx, t, dt, y, dy)
+    Dp = Duplicated
+    autodiff_deferred(Reverse, g, Dp(x, dx), Dp(t, dt), Dp(y, dy))
+    return
+end
+
+function ∂2(x, dx, dx2, t, dt, y, dy)
+    Dp = Duplicated
+    vx = ones_like(dx2)
+    vt = zeros_like(dx2)
+    dy .= 1
+    dx2 .= 0
+    autodiff_deferred(Reverse, grad,
+             Dp(x, dx2), Dp(dx, vx),
+             Dp(t, zeros_like(t)), Dp(dt, zeros_like(dt)),
+             Dp(y, zeros_like(y)), Dp(dy, zeros_like(dy)))
+    return
+end
+
+function main()
+    x = Float32.(1:10)
+    t = Float32.(1:10)
+    y = zero(x)
+    dy = ones_like(y)
+    dx = zero(x)
+    dt = zero(t)
+
+    grad(x, dx, t, dt, y, dy)
+    ∂gx, ∂gt = dgAnalytical(x, t)
+
+    @show dx .- ∂gx
+    @show dt .- ∂gt
+
+    dx2 = zero(x)
+    ∂2(x, dx, dx2, t, dt, y, dy)
+    ∂gxx, ∂gtt = dg2Analytical(x, t)
+
+    @show dx2 .- ∂gxx
+
+    return
+end
+
+main()
