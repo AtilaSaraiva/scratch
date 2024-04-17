@@ -56,6 +56,15 @@ function ∂tt(x, dx, t, dt, dt2, y, dy)
     return
 end
 
+function loss(x, t, dx, dt, dx2, dt2, y, dy)
+    ∂xx(x, dx, dx2, t, dt, y, dy)
+    ∂tt(x, dx, t, dt, dt2, y, dy)
+
+    loss_val = sum(@. abs2(dt2 - dx2))
+
+    return loss_val
+end
+
 function main()
     x = Float32.(1:10)
     t = Float32.(1:10)
@@ -79,43 +88,10 @@ function main()
     @show dx2 .- ∂gxx
     @show dt2 .- ∂gtt
 
+    loss_val = loss(x,t)
+
+    @show loss_val
     return
 end
 
 main()
-
-
-# dgdx = zero(x)
-# dgdt = zero(t)
-# y = zero(x)
-# dy = zero(x) .+ 1
-# vx = zero(x) .+ 1
-# vt = zero(t) .+ 1
-
-
-# function dg_dx(x, dgdx, t, y, dy)
-    # dy .= 1
-    # autodiff_deferred(Reverse, g, Duplicated(x, dgdx), Const(t), Duplicated(y, dy))
-    # return nothing
-# end
-# function dg_dt(x, t, dgdt, y, dy)
-    # dy .= 1
-    # autodiff_deferred(Reverse, g, Const(x), Duplicated(t, dgdt), Duplicated(y, dy))
-    # return nothing
-# end
-# function dg_dx2(x, dgdx, dgdx2, vx, t, y, dy)
-    # dy .= 1
-    # vx .= 1
-    # autodiff_deferred(Reverse, dg_dx, Duplicated(x, dgdx2), Duplicated(dgdx, vx),
-                      # Const(t), Const(y), Const(dy))
-    # return nothing
-# end
-
-# dgdx2 = zero(x)
-# dgdt2 = zero(t)
-# # dg_dx(x, dgdx, t, y, dy)
-# # dg_dt(x, t, dgdt, y, dy)
-# dg_dx2(x, dgdx, dgdx2, vx, t, y, dy)
-# # @show all(dgAnalytical(x, t)[1] .== dgdx)
-# # @show all(dgAnalytical(x, t)[2] .== dgdt)
-# @show all(dg2Analytical(x, t)[1] .== dgdx2)
